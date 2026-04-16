@@ -36,8 +36,8 @@ elif [[ -d /dev/dri ]]; then
   elif [[ -e /dev/dri/renderD128 ]]; then
     GPU_BACKEND="intel"
     msg_ok "Detected GPU (assuming Intel) - will configure SYCL/oneAPI backend"
+  fi
 fi
-
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -66,6 +66,8 @@ EOF
   $STD apt update
   msg_ok "Set up Intel® Repositories"
 fi
+
+setup_hwaccel
 
 # ══════════════════════════════════════════════════════════════════════════════
 # Intel-specific: Level Zero + oneAPI
@@ -111,7 +113,6 @@ if [[ "$GPU_BACKEND" == "rocm" ]]; then
 fi
 
 
-setup_hwaccel
 
 msg_info "Installing Ollama (Patience)"
 RELEASE=$(curl -fsSL https://api.github.com/repos/ollama/ollama/releases/latest | grep "tag_name" | awk -F '"' '{print $4}')
