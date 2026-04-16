@@ -25,10 +25,7 @@ msg_ok "Installed Dependencies"
 # ══════════════════════════════════════════════════════════════════════════════
 GPU_BACKEND="cpu"
 
-if [[ -e /dev/kfd ]]; then
-  GPU_BACKEND="rocm"
-  msg_ok "Detected AMD GPU (/dev/kfd present) - will configure ROCm backend"
-elif [[ -d /dev/dri ]]; then
+if [[ -d /dev/dri ]]; then
   # Check if Intel GPU is available (default for this script)
   if lspci 2>/dev/null | grep -iE 'VGA|3D|Display' | grep -qi 'Intel'; then
     GPU_BACKEND="intel"
@@ -36,7 +33,11 @@ elif [[ -d /dev/dri ]]; then
   elif [[ -e /dev/dri/renderD128 ]]; then
     GPU_BACKEND="intel"
     msg_ok "Detected GPU (assuming Intel) - will configure SYCL/oneAPI backend"
-  fi
+fi
+
+if [[ -e /dev/kfd ]]; then
+  GPU_BACKEND="rocm"
+  msg_ok "Detected AMD GPU (/dev/kfd present) - switching to configure ROCm backend"
 fi
 
 # ══════════════════════════════════════════════════════════════════════════════
