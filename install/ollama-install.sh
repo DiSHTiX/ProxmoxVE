@@ -25,7 +25,10 @@ msg_ok "Installed Dependencies"
 # ══════════════════════════════════════════════════════════════════════════════
 GPU_BACKEND="cpu"
 
-if [[ -d /dev/dri ]]; then
+if [[ -e /dev/kfd ]]; then
+  GPU_BACKEND="rocm"
+  msg_ok "Detected AMD GPU (/dev/kfd present) - switching to configure ROCm backend"
+elif [[ -d /dev/dri ]]; then
   # Check if Intel GPU is available (default for this script)
   if lspci 2>/dev/null | grep -iE 'VGA|3D|Display' | grep -qi 'Intel'; then
     GPU_BACKEND="intel"
@@ -35,10 +38,7 @@ if [[ -d /dev/dri ]]; then
     msg_ok "Detected GPU (assuming Intel) - will configure SYCL/oneAPI backend"
 fi
 
-if [[ -e /dev/kfd ]]; then
-  GPU_BACKEND="rocm"
-  msg_ok "Detected AMD GPU (/dev/kfd present) - switching to configure ROCm backend"
-fi
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 # Intel GPU Setup
@@ -66,8 +66,6 @@ EOF
   $STD apt update
   msg_ok "Set up Intel® Repositories"
 fi
-
-setup_hwaccel
 
 # ══════════════════════════════════════════════════════════════════════════════
 # Intel-specific: Level Zero + oneAPI
@@ -106,16 +104,20 @@ if [[ "$GPU_BACKEND" == "rocm" ]]; then
   msg_ok "Verified ROCm runtime"
 fi
 
-msg_info "Installing Ollama (Patience)"
-RELEASE=$(curl -fsSL https://api.github.com/repos/ollama/ollama/releases/latest | grep "tag_name" | awk -F '"' '{print $4}')
-OLLAMA_INSTALL_DIR="/usr/local/lib/ollama"
-BINDIR="/usr/local/bin"
-mkdir -p $OLLAMA_INSTALL_DIR
 if [[ "$GPU_BACKEND" == "rocm" ]]; then
     OLLAMA_URL="https://github.com/ollama/ollama/releases/download/${RELEASE}/ollama-linux-amd64-rocm.tar.zst"
   else
     OLLAMA_URL="https://github.com/ollama/ollama/releases/download/${RELEASE}/ollama-linux-amd64.tar.zst"
 fi
+
+
+setup_hwaccel
+
+msg_info "Installing Ollama (Patience)"
+RELEASE=$(curl -fsSL https://api.github.com/repos/ollama/ollama/releases/latest | grep "tag_name" | awk -F '"' '{print $4}')
+OLLAMA_INSTALL_DIR="/usr/local/lib/ollama"
+BINDIR="/usr/local/bin"
+mkdir -p $OLLAMA_INSTALL_DIR
 TMP_TAR="/tmp/ollama.tar.zst"
 echo -e "\n"
 if curl -fL# -C - -o "$TMP_TAR" "$OLLAMA_URL"; then

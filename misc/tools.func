@@ -4837,7 +4837,7 @@ _setup_rocm() {
     return 0
   fi
 
-  local ROCM_VERSION="7.2"
+  local ROCM_VERSION="7.2.1"
   local ROCM_REPO_CODENAME
 
   # Map OS codename to ROCm repository codename (Ubuntu-based repos)
