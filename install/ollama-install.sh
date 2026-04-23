@@ -112,11 +112,11 @@ RELEASE=$(curl -fsSL https://api.github.com/repos/ollama/ollama/releases/latest 
 OLLAMA_INSTALL_DIR="/usr/local/lib/ollama"
 BINDIR="/usr/local/bin"
 mkdir -p $OLLAMA_INSTALL_DIR
-if [[ "$GPU_BACKEND" == "rocm" ]]; then
-    OLLAMA_URL="https://github.com/ollama/ollama/releases/download/${RELEASE}/ollama-linux-amd64-rocm.tar.zst"
-  else
+#if [[ "$GPU_BACKEND" == "rocm" ]]; then
+#    OLLAMA_URL="https://github.com/ollama/ollama/releases/download/${RELEASE}/ollama-linux-amd64-rocm.tar.zst"
+#  else
     OLLAMA_URL="https://github.com/ollama/ollama/releases/download/${RELEASE}/ollama-linux-amd64.tar.zst"
-fi
+#fi
 TMP_TAR="/tmp/ollama.tar.zst"
 echo -e "\n"
 if curl -fL# -C - -o "$TMP_TAR" "$OLLAMA_URL"; then
